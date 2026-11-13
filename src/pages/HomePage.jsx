@@ -1,5 +1,7 @@
-import FeaturedCarousel from "@/components/FeaturedCarousel";
+import FeaturedCarousel from "@/components/events/FeaturedCarousel";
+import EventCard from "@/components/events/EventCard";
 import { Button } from "@/components/ui/button";
+import { formatEventDate, formatPrice } from "@/lib/utils";
 import axios from "axios";
 import {
   ArrowBigRight,
@@ -19,6 +21,8 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
+import Skeleton from "@/components/common/Skeleton";
+import EventDetailsPage from "./EventDetailsPage";
 
 function getCategoryIconComponent(category) {
   const icon = category?.icon || "";
@@ -47,6 +51,60 @@ function getCategoryIconComponent(category) {
   }
   return Tag;
 }
+
+function getCategoryColor(i) {
+  const colors = [
+    {
+      icon: "bg-orange-50 text-[#E65100] border-orange-200 group-hover:bg-[#E65100] group-hover:text-white",
+      text: "group-hover:text-[#E65100]",
+    },
+    {
+      icon: "bg-blue-50 text-blue-700 border-blue-200 group-hover:bg-blue-600 group-hover:text-white",
+      text: "group-hover:text-blue-600",
+    },
+    {
+      icon: "bg-emerald-50 text-emerald-700 border-emerald-200 group-hover:bg-emerald-600 group-hover:text-white",
+      text: "group-hover:text-emerald-600",
+    },
+    {
+      icon: "bg-purple-50 text-purple-700 border-purple-200 group-hover:bg-purple-600 group-hover:text-white",
+      text: "group-hover:text-purple-600",
+    },
+    {
+      icon: "bg-rose-50 text-rose-700 border-rose-200 group-hover:bg-rose-600 group-hover:text-white",
+      text: "group-hover:text-rose-600",
+    },
+    {
+      icon: "bg-amber-50 text-amber-700 border-amber-200 group-hover:bg-amber-600 group-hover:text-white",
+      text: "group-hover:text-amber-600",
+    },
+  ];
+
+  return colors[i % colors.length];
+}
+
+const HUB_CITIES = [
+  {
+    name: "Bengaluru",
+    label: "Tech & Acoustic Nights",
+    img: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=500&q=80",
+  },
+  {
+    name: "Mumbai",
+    label: "Indie Festivals & Art",
+    img: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=500&q=80",
+  },
+  {
+    name: "Delhi NCR",
+    label: "Conclaves & Founder Pitch",
+    img: "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=500&q=80",
+  },
+  {
+    name: "Pune",
+    label: "Heritage & Code Labs",
+    img: "https://images.unsplash.com/photo-1627916607164-7b20241db935?auto=format&fit=crop&w=500&q=80",
+  },
+];
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -130,6 +188,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+
        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between pb-4">
           <div className="flex items-center gap-2">
@@ -152,6 +211,7 @@ export default function Home() {
           <FeaturedCarousel events={featuredEvents} />
         )}
       </section>
+
        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
         <div>
           <h2 className="text-xl font-bold text-stone-900 tracking-tight">Browse by Discipline</h2>
@@ -174,19 +234,20 @@ export default function Home() {
             ))}
           </div>
         ) :(<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">          
-          {categories.map((category)=>{
+          {categories.map((category,i)=>{
              const Icon = getCategoryIconComponent(category);
+             const color =getCategoryColor(i);
             return(
             <Link
             key={category._id}
             to="/explore"
             className="p-4 rounded-2xl bg-white border border-[#EBE8DF] hover:border-[#D5D0C2] hover:shadow-subtle transition-all duration-200 group flex flex-col justify-between"
           >
-            <div className="w-10 h-10 rounded-xl border flex items-center justify-center mb-3 transition-all duration-200 bg-orange-50 text-[#E65100] border-orange-200 group-hover:bg-[#E65100] group-hover:text-white text-lg">
+            <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-3 transition-all duration-200 ${color?.icon}`}>
               <Icon/>
             </div>
             <div>
-              <p className="text-xs font-bold text-stone-900 leading-snug group-hover:text-[#E65100] transition-colors">
+              <p className={`text-xs font-bold text-stone-900 leading-snug  transition-colors ${color?.text}`}>
                 {category.name}
               </p>
               <p className="text-[11px] text-stone-400 mt-0.5">{category.eventCount} events</p>
@@ -194,6 +255,110 @@ export default function Home() {
           </Link>
           )})}
         </div>)}
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#EBE8DF]">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+              Upcoming Gatherings
+            </h2>
+            <p className="text-xs text-stone-500">
+              Verified community events happening in the coming days
+            </p>
+          </div>
+          <Link
+            to="/explore"
+            className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap px-3 py-1.5 text-xs rounded-lg font-medium border border-[#CCC8BA] bg-transparent hover:bg-[#F2F1EC] text-[#222]"
+          >
+            <span>View All Events</span>
+            <span>→</span>
+          </Link>
+        </div>
+
+       {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <Skeleton key={i}/>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"  >
+            {trendingEvents.map((e) => {
+              return <EventCard key={e._id} event={e} />;
+            })}
+          </div>
+        )}
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-5">
+        <div>
+          <h2 className="text-xl font-bold text-stone-900 tracking-tight">
+            Explore by Community Hub
+          </h2>
+          <p className="text-xs text-stone-500">
+            Vibrant hubs where local conclaves thrive
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {HUB_CITIES.map((c, i) => (
+            <Link
+              key={i}
+              to="/explore"
+              className="group relative rounded-2xl overflow-hidden aspect-4/3 bg-stone-900 shadow-subtle border border-[#EBE8DF]"
+            >
+              <img
+                src={c.img}
+                alt={c.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-75"
+              />
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4 text-white">
+                <div className="flex items-center gap-1.5 text-orange-400 text-xs font-semibold">
+                  <MapPin />
+                  <span>{c.name}</span>
+                </div>
+                <p className="text-xs text-stone-300 font-medium mt-0.5">
+                  {c.label}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#1C1B18] text-white rounded-3xl p-8 sm:p-12 border border-[#33312B] flex flex-col lg:flex-row items-center justify-between gap-8">
+          <div className="max-w-xl space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#FF8A65]">
+              Empowering Community Hosts
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              Host your next summit, workshop or indie showcase on EventSphere.
+            </h2>
+            <p className="text-sm text-stone-300 leading-relaxed">
+              Every registered user can organize events. Enjoy seamless
+              ticketing, automatic calendar syncing, verified attendee reviews,
+              and real-time dashboard analytics.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+            <Link
+              to="/create-event"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold px-5 py-2.5 text-base rounded-xl bg-[#E65100] text-white hover:bg-[#D84315] w-full sm:w-auto shadow-lg"
+            >
+              Create Event Now
+            </Link>
+            <Link
+              to="/profile"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-semibold px-5 py-2.5 text-base rounded-xl w-full sm:w-auto bg-white/10 text-white border border-white/20 hover:bg-white/20"
+            >
+              Organizer Portal
+            </Link>
+          </div>
+        </div>
       </section>
     </div>
   );

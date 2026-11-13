@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
+import Navbar from './components/common/Navbar'
+import Footer from './components/common/Footer'
 import { Route, Routes, useLocation } from 'react-router'
 import NotFound from './pages/NotFound'
 import { House } from 'lucide-react'
 import Home from './pages/HomePage'
+import EventDetailsPage from './pages/EventDetailsPage'
 
 function App() {
  
@@ -22,6 +23,7 @@ function App() {
       <div className='flex-1'>
       <Routes>
         <Route path='/' element={<Home/>}/>
+        <Route path='/events/:slug' element={<EventDetailsPage/>}/>
          <Route path='*' element={<NotFound/>}/>
       </Routes>
       </div>
