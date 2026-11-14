@@ -2,7 +2,6 @@ import FeaturedCarousel from "@/components/events/FeaturedCarousel";
 import EventCard from "@/components/events/EventCard";
 import { Button } from "@/components/ui/button";
 import { formatEventDate, formatPrice } from "@/lib/utils";
-import axios from "axios";
 import {
   ArrowBigRight,
   ArrowRight,
@@ -23,6 +22,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 import Skeleton from "@/components/common/Skeleton";
 import EventDetailsPage from "./EventDetailsPage";
+import api from "@/lib/axios";
 
 function getCategoryIconComponent(category) {
   const icon = category?.icon || "";
@@ -116,29 +116,17 @@ export default function Home() {
     async function loadHomePage() {
       setIsLoading(true);
       try {
-        let {
-          data: { data },
-        } = await axios.get(
-          "https://eventsphere-server-mfdb.onrender.com/api/events/featured",
-        );
+        let data = await api.get("/api/events/featured");
         setFeaturedEvents(data);
       } catch (error) {}
 
       try {
-        let {
-          data: { data },
-        } = await axios.get(
-          "https://eventsphere-server-mfdb.onrender.com/api/categories",
-        );
+        let data = await api.get("/api/categories");
         setCategories(data);
       } catch (error) {}
 
       try {
-        let {
-          data: { data },
-        } = await axios.get(
-          "https://eventsphere-server-mfdb.onrender.com/api/events?limit=8&sort=startDate&order=asc",
-        );
+        let data = await api.get("/api/events?limit=8&sort=startDate&order=asc");
         setTrendingEvents(data);
       } catch (error) {}
 
