@@ -6,6 +6,8 @@ import NotFound from './pages/NotFound'
 import Home from './pages/HomePage'
 import EventDetailsPage from './pages/EventDetailsPage'
 import { Toaster } from 'sonner'
+import FavouritesPage from './pages/FavouritesPage'
+import ExplorePage from './pages/ExplorePage'
 
 function App() {
 
@@ -24,6 +26,8 @@ function App() {
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/events/:slug' element={<EventDetailsPage />} />
+          <Route path='/favourites' element={<FavouritesPage />} />
+          <Route path='/explore' element={<ExplorePage />} />
           <Route path='*' element={<NotFound />} />
         </Routes>
       </div>

@@ -12,10 +12,11 @@ import {
 import { Link } from "react-router";
 import { Button } from "../ui/button";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+  const favourites=useSelector((state)=>(state.favourites.items))
   return (
     <div className="sticky top-0 z-100 w-full bg-[#FAF9F5]/90 backdrop-blur-md border-b border-[#EBE8DF]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-18">
@@ -52,11 +53,16 @@ function Navbar() {
             </Link>
 
             <Link
-              to="/favorites"
+              to="/favourites"
               className="px-3.5 py-2 text-sm font-medium rounded-xl transition-colors inline-flex items-center gap-2 text-stone-600 hover:text-stone-900 hover:bg-black/3"
             >
               <Bookmark className="w-4 h-4" />
               <span>Saved</span>
+              {favourites.length > 0 && (
+                <span className="w-5 h-5 rounded-full bg-orange-100 text-[#E65100] text-[11px] font-bold flex items-center justify-center">
+                  {favourites.length}
+                </span>
+              )}
             </Link>
 
             <Link
